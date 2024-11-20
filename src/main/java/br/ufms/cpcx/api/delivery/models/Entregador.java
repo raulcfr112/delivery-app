@@ -1,8 +1,9 @@
 package br.ufms.cpcx.api.delivery.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -21,11 +22,16 @@ public class Entregador {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
 
-    @OneToMany(mappedBy = "entregador", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Pedido> pedidos;
-
+    @Column(name = "nome", nullable = false)
     private String nome;
+
+    @Column(name = "contato", nullable = false)
     private String contato;
+
+    @OneToMany(mappedBy = "entregador", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Pedido> pedidos;
 }
