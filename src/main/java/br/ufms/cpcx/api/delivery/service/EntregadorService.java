@@ -19,7 +19,6 @@ public class EntregadorService {
 
     @Transactional
     public Entregador saveEntregador(EntregadorDTO entregadorDto) {
-
         Entregador entregador = new Entregador();
         entregador.setNome(entregadorDto.getNome());
         entregador.setContato(entregadorDto.getContato());
@@ -29,8 +28,7 @@ public class EntregadorService {
 
     @Transactional
     public Entregador updateEntregador(Long id, EntregadorDTO entregadorDto) {
-        Entregador entregador = entregadorRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entregador não encontrado"));
+        Entregador entregador = findEntregadorById(id);
 
         entregador.setNome(entregadorDto.getNome());
         entregador.setContato(entregadorDto.getContato());
@@ -40,8 +38,7 @@ public class EntregadorService {
 
     @Transactional
     public void deleteEntregador(Long id) {
-        Entregador entregador = entregadorRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Entregador não encontrado"));
+        Entregador entregador = findEntregadorById(id);
 
         entregadorRepository.delete(entregador);
     }

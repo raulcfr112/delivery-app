@@ -29,8 +29,7 @@ public class ProdutoService {
 
     @Transactional
     public Produto updateProduto(Long id, ProdutoDTO produtoDto) {
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com o ID: " + id));
+        Produto produto = findProdutoById(id);
 
         produto.setDescricao(produtoDto.getDescricao());
         produto.setValor(produtoDto.getValor());
@@ -41,8 +40,7 @@ public class ProdutoService {
 
     @Transactional
     public void deleteProduto(Long id) {
-        Produto produto = produtoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produto não encontrado com o ID: " + id));
+        Produto produto = findProdutoById(id);
 
         produtoRepository.delete(produto);
     }
@@ -56,3 +54,4 @@ public class ProdutoService {
         return produtoRepository.findAll(pageable);
     }
 }
+

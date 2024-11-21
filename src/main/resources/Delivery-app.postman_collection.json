@@ -111,6 +111,39 @@
 					"response": []
 				},
 				{
+					"name": "Usuario Cadastrado",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"email\": \"raulcfr112@gmail.com\",\r\n    \"senha\": \"123456\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/usuarios/isCadastrado",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"usuarios",
+								"isCadastrado"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "Get all",
 					"request": {
 						"method": "GET",

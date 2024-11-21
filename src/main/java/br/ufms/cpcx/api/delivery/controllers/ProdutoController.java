@@ -2,11 +2,17 @@ package br.ufms.cpcx.api.delivery.controllers;
 
 import br.ufms.cpcx.api.delivery.dtos.ProdutoDTO;
 import br.ufms.cpcx.api.delivery.models.Produto;
+import br.ufms.cpcx.api.delivery.models.ProdutoRepresentationModelAssembler;
 import br.ufms.cpcx.api.delivery.service.ProdutoService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -22,21 +28,27 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/produto")
+@AllArgsConstructor
 public class ProdutoController {
 
     @Autowired
     private ProdutoService produtoService;
 
+    final ProdutoRepresentationModelAssembler produtoRepresentationModelAssembler;
+    final PagedResourcesAssembler pagedResourcesAssembler;
+
     @PostMapping
-    public ResponseEntity<Produto> saveProduto(@RequestBody @Valid ProdutoDTO produtoDto) {
-        Produto savedProduto = produtoService.saveProduto(produtoDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedProduto);
+    public ResponseEntity<EntityModel<Produto>> saveProduto(@RequestBody @Valid ProdutoDTO produtoDto) {
+        EntityModel<Produto> produto = produtoRepresentationModelAssembler
+                .toModel(produtoService.saveProduto(produtoDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(produto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Produto> updateProduto(@PathVariable Long id, @RequestBody @Valid ProdutoDTO produtoDto) {
+    public ResponseEntity<EntityModel<Produto>> updateProduto(@PathVariable Long id, @RequestBody @Valid ProdutoDTO produtoDto) {
         Produto updatedProduto = produtoService.updateProduto(id, produtoDto);
-        return ResponseEntity.ok(updatedProduto);
+        EntityModel<Produto> produto = produtoRepresentationModelAssembler.toModel(updatedProduto);
+        return ResponseEntity.ok(produto);
     }
 
     @DeleteMapping("/{id}")
@@ -46,14 +58,18 @@ public class ProdutoController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Produto> getProdutoById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Produto>> getProdutoById(@PathVariable Long id) {
         Produto produto = produtoService.findProdutoById(id);
-        return ResponseEntity.ok(produto);
+        EntityModel<Produto> produtoModel = produtoRepresentationModelAssembler.toModel(produto);
+        return ResponseEntity.ok(produtoModel);
     }
 
     @GetMapping
-    public ResponseEntity<Page<Produto>> getAllProdutos(Pageable pageable) {
-        Page<Produto> produtos = produtoService.findAllProdutos(pageable);
-        return ResponseEntity.ok(produtos);
+    public ResponseEntity<PagedModel<Produto>> getAllProdutos(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        var page = produtoService.findAllProdutos(pageable);
+        PagedModel<Produto> collModel = pagedResourcesAssembler.toModel(page, produtoRepresentationModelAssembler);
+        return new ResponseEntity<>(collModel, HttpStatus.OK);
     }
 }
+

@@ -33,8 +33,7 @@ public class UsuarioService {
 
     @Transactional
     public Usuario updateUsuario(Long id, UsuarioDTO usuarioDto) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        Usuario usuario = findUsuarioById(id);
 
         usuario.setNome(usuarioDto.getNome());
         usuario.setEmail(usuarioDto.getEmail());
@@ -45,8 +44,7 @@ public class UsuarioService {
 
     @Transactional
     public void deleteUsuario(Long id) {
-        Usuario usuario = usuarioRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
+        Usuario usuario = findUsuarioById(id);
 
         usuarioRepository.delete(usuario);
     }
@@ -58,6 +56,10 @@ public class UsuarioService {
 
     public Page<Usuario> findAllUsuarios(Pageable pageable) {
         return usuarioRepository.findAll(pageable);
+    }
+
+    public boolean isUsuarioCadastrado(String email, String senha) {
+        return usuarioRepository.existsByEmailAndSenha(email, senha);
     }
 
 }

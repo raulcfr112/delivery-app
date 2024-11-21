@@ -14,7 +14,6 @@ public class UsuarioDTO {
 
     private Long id;
 
-    @NotBlank
     @Size(max = 100)
     private String nome;
 

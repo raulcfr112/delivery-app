@@ -2,11 +2,17 @@ package br.ufms.cpcx.api.delivery.controllers;
 
 import br.ufms.cpcx.api.delivery.dtos.EntregadorDTO;
 import br.ufms.cpcx.api.delivery.models.Entregador;
+import br.ufms.cpcx.api.delivery.models.EntregadorRepresentationModelAssembler;
 import br.ufms.cpcx.api.delivery.service.EntregadorService;
 import jakarta.validation.Valid;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -19,24 +25,30 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("/api/entregador")
+@AllArgsConstructor
 public class EntregadorController {
 
     @Autowired
     private EntregadorService entregadorService;
 
+    final EntregadorRepresentationModelAssembler entregadorRepresentationModelAssembler;
+    final PagedResourcesAssembler pagedResourcesAssembler;
+
     @PostMapping
-    public ResponseEntity<Entregador> saveEntregador(@RequestBody @Valid EntregadorDTO entregadorDto) {
-        Entregador savedEntregador = entregadorService.saveEntregador(entregadorDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(savedEntregador);
+    public ResponseEntity<EntityModel<Entregador>> saveEntregador(@RequestBody @Valid EntregadorDTO entregadorDto) {
+        EntityModel<Entregador> entregador = entregadorRepresentationModelAssembler.toModel(entregadorService.saveEntregador(entregadorDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(entregador);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Entregador> updateEntregador(@PathVariable Long id, @RequestBody @Valid EntregadorDTO entregadorDto) {
+    public ResponseEntity<EntityModel<Entregador>> updateEntregador(@PathVariable Long id, @RequestBody @Valid EntregadorDTO entregadorDto) {
         Entregador updatedEntregador = entregadorService.updateEntregador(id, entregadorDto);
-        return ResponseEntity.ok(updatedEntregador);
+        EntityModel<Entregador> entregador = entregadorRepresentationModelAssembler.toModel(updatedEntregador);
+        return ResponseEntity.ok(entregador);
     }
 
     @DeleteMapping("/{id}")
@@ -46,14 +58,17 @@ public class EntregadorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Entregador> getEntregadorById(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<Entregador>> getEntregadorById(@PathVariable Long id) {
         Entregador entregador = entregadorService.findEntregadorById(id);
-        return ResponseEntity.ok(entregador);
+        EntityModel<Entregador> entregadorModel = entregadorRepresentationModelAssembler.toModel(entregador);
+        return ResponseEntity.ok(entregadorModel);
     }
 
     @GetMapping
-    public ResponseEntity<Page<Entregador>> getAllEntregadores(Pageable pageable) {
-        Page<Entregador> entregadores = entregadorService.findAllEntregadores(pageable);
-        return ResponseEntity.ok(entregadores);
+    public ResponseEntity<PagedModel<Entregador>> getAllEntregadores(
+            @PageableDefault(page = 0, size = 10, sort = "id", direction = Sort.Direction.ASC) Pageable pageable) {
+        var page = entregadorService.findAllEntregadores(pageable);
+        PagedModel<Entregador> collModel = pagedResourcesAssembler.toModel(page, entregadorRepresentationModelAssembler);
+        return new ResponseEntity<>(collModel, HttpStatus.OK);
     }
 }

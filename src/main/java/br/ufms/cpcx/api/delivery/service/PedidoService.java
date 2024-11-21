@@ -10,6 +10,8 @@ import br.ufms.cpcx.api.delivery.repositories.PedidoRepository;
 import br.ufms.cpcx.api.delivery.repositories.ProdutoRepository;
 import br.ufms.cpcx.api.delivery.repositories.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,8 +58,8 @@ public class PedidoService {
         return pedidoRepository.save(pedido);
     }
 
-    public List<Pedido> findAllPedidos() {
-        return pedidoRepository.findAll();
+    public Page<Pedido> findAllPedidos(Pageable pageable) {
+        return pedidoRepository.findAll(pageable);
     }
 
     public Pedido findPedidoById(Long id) {
@@ -67,8 +69,7 @@ public class PedidoService {
 
     @Transactional
     public Pedido updatePedido(Long id, PedidoDTO pedidoDto) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
+        Pedido pedido = findPedidoById(id);
 
         pedido.setIdsProdutos(pedidoDto.getIdsProdutos());
         pedido.setEnderecoEntrega(pedidoDto.getEnderecoEntrega());
@@ -84,8 +85,7 @@ public class PedidoService {
 
     @Transactional
     public void deletePedido(Long id) {
-        Pedido pedido = pedidoRepository.findById(id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Pedido não encontrado"));
+        Pedido pedido = findPedidoById(id);
 
         pedidoRepository.delete(pedido);
     }
@@ -106,4 +106,3 @@ public class PedidoService {
     }
 
 }
-
