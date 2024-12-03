@@ -58,8 +58,9 @@ public class UsuarioService {
         return usuarioRepository.findAll(pageable);
     }
 
-    public boolean isUsuarioCadastrado(String email, String senha) {
-        return usuarioRepository.existsByEmailAndSenha(email, senha);
+    public Usuario isUsuarioCadastrado(String email, String senha) {
+        return usuarioRepository.findByEmailAndSenha(email, senha)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuário não encontrado"));
     }
 
 }

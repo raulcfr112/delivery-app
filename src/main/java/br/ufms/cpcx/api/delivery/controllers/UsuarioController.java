@@ -72,8 +72,8 @@ public class UsuarioController {
         return new ResponseEntity<>(collModel, HttpStatus.OK);
     }
 
-    @GetMapping("/isCadastrado")
-    public boolean isUsuarioCadastrado(@RequestBody UsuarioDTO usuarioDto) {
+    @PostMapping("/isCadastrado")
+    public Usuario isUsuarioCadastrado(@RequestBody UsuarioDTO usuarioDto) {
         return usuarioService.isUsuarioCadastrado(usuarioDto.getEmail(), usuarioDto.getSenha());
     }
 }
